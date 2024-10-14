@@ -3,7 +3,7 @@ name: Build and Release Rust Project
 on:
   push:
     tags:
-      - 'v*'  # 监听版本标签的推送，如 v1.0.0
+      - 'v*'  # 监听符合 v* 格式的标签推送
 
 jobs:
   build:
@@ -11,8 +11,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]  # Linux 和 macOS 构建环境
-        target: [x86_64-unknown-linux-gnu, x86_64-apple-darwin]  # 构建目标
+        os: [ubuntu-latest, macos-latest]
+        target: [x86_64-unknown-linux-gnu, x86_64-apple-darwin]
 
     steps:
       - name: Checkout code
@@ -21,47 +21,43 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable  # 使用 Rust stable 版本
+          toolchain: stable
           profile: minimal
           override: true
 
-      - name: Install Dependencies
-        run: |
-          rustup target add ${{ matrix.target }}
+      - name: Add Build Target
+        run: rustup target add ${{ matrix.target }}
 
-      - name: Build Project
-        run: |
-          cargo build --release --target ${{ matrix.target }}
+      - name: Build Binary
+        run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Upload Artifact
+      - name: Upload Binary
         uses: actions/upload-artifact@v3
         with:
-          name: sshm-${{ matrix.os }}
-          path: target/${{ matrix.target }}/release/sshm  # 上传构建产物
+          name: sshm-${{ matrix.target }}-binary
+          path: target/${{ matrix.target }}/release/*  # 仅上传二进制文件
 
   release:
     name: Create Release
-    needs: build  # 等待构建完成后执行
+    needs: build  # 等待构建任务完成
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Artifacts
+      - name: Download Linux Binary
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-latest-binary
-          path: binaries/linux/
-      
+          name: x86_64-unknown-linux-gnu-binary
+          path: binaries/
+
       - name: Download macOS Binary
         uses: actions/download-artifact@v3
         with:
-          name: macos-latest-binary
-          path: binaries/macos/
+          name: x86_64-apple-darwin-binary
+          path: binaries/
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            binaries/linux/*
-            binaries/macos/*
+          files: binaries/*
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}  # 使用 GitHub 自动生成的 Token
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}  # 使用 GitHub 默认 Token
