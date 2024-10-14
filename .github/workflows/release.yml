@@ -36,8 +36,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os }}-binary
-          path: target/${{ matrix.target }}/release/*  # 上传构建产物
+          name: sshm-${{ matrix.os }}
+          path: target/${{ matrix.target }}/release/sshm  # 上传构建产物
 
   release:
     name: Create Release
