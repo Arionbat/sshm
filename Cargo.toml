@@ -1,0 +1,11 @@
+[package]
+name = "sshm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rusqlite = "0.32.1"
+comfy-table = "7.1.1"
+regex = "1.11.0"
+dirs = "5.0.1"
+termion = "4.0.3"
