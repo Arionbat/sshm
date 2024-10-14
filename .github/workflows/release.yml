@@ -82,7 +82,6 @@ jobs:
               uses: actions/download-artifact@v3
               with:
                   name: sshm-linux
-                  path: binaries/
 
             # - name: Download macOS Binary
             #   uses: actions/download-artifact@v3
@@ -93,6 +92,6 @@ jobs:
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v1
               with:
-                  files: binaries/*
+                  files: sshm-linux
               env:
                   GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
