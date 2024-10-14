@@ -9,3 +9,14 @@ comfy-table = "7.1.1"
 regex = "1.11.0"
 dirs = "5.0.1"
 termion = "4.0.3"
+
+[[bin]]
+name = "sshm"        # 生成的二进制文件名
+path = "src/main.rs" # 主程序文件路径
+
+[profile.release]
+# Release 模式下的优化设置，确保生成高效的二进制文件
+opt-level = "z" # 优化体积
+lto = true      # 启用链接时优化 (Link Time Optimization)
+panic = "abort" # 遇到 panic 时直接终止，减少二进制大小
+strip = true    # 删除调试符号，进一步压缩体积
