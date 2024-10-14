@@ -1,98 +1,98 @@
 name: Build and Release Rust Project
 
 on:
-  push:
-    tags:
-      - 'v*'  # 当推送符合 'v*' 格式的标签时触发
+    push:
+        tags:
+            - 'v*' # 当推送符合 'v*' 格式的标签时触发
 
 jobs:
-  # === Linux 构建 Job ===
-  build-linux:
-    name: Build for Linux
-    runs-on: ubuntu-latest
+    # === Linux 构建 Job ===
+    build-linux:
+        name: Build for Linux
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-unknown-linux-gnu
-          override: true
+            - name: Install Rust Toolchain
+              uses: actions-rs/toolchain@v1
+              with:
+                  toolchain: stable
+                  target: x86_64-unknown-linux-gnu
+                  override: true
 
-      - name: Build Linux Binary
-        run: cargo build --release --target x86_64-unknown-linux-gnu
+            - name: Build Linux Binary
+              run: cargo build --release --target x86_64-unknown-linux-gnu
 
-      - name: Upload Linux Binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: sshm-linux
-          path: target/x86_64-unknown-linux-gnu/release/*
-          retention-days: 3 
+            - name: Upload Linux Binary
+              uses: actions/upload-artifact@v4
+              with:
+                  name: sshm-linux
+                  path: target/x86_64-unknown-linux-gnu/release/sshm
+                  retention-days: 3
 
-  # === macOS 构建 Job ===
-  build-macos:
-    name: Build for macOS
-    runs-on: ubuntu-latest
+    # # === macOS 构建 Job ===
+    # build-macos:
+    #   name: Build for macOS
+    #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    #   steps:
+    #     - name: Checkout code
+    #       uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl unzip clang llvm build-essential
-          git clone https://github.com/tpoechtrager/osxcross.git
-          cd osxcross && mkdir -p target
-          curl -L https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX11.3.sdk.tar.xz | tar -xJ -C target
-          SDK_PATH=$(pwd)/target/MacOSX11.3.sdk
-          PATH=$(pwd)/target/bin:$PATH
-          export OSX_SDK_PATH=$SDK_PATH
+    #     - name: Install Dependencies
+    #       run: |
+    #         sudo apt-get update
+    #         sudo apt-get install -y curl unzip clang llvm build-essential
+    #         git clone https://github.com/tpoechtrager/osxcross.git
+    #         cd osxcross && mkdir -p target
+    #         curl -L https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX11.3.sdk.tar.xz | tar -xJ -C target
+    #         SDK_PATH=$(pwd)/target/MacOSX11.3.sdk
+    #         PATH=$(pwd)/target/bin:$PATH
+    #         export OSX_SDK_PATH=$SDK_PATH
 
-      - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-apple-darwin
-          override: true
+    #     - name: Install Rust Toolchain
+    #       uses: actions-rs/toolchain@v1
+    #       with:
+    #         toolchain: stable
+    #         target: x86_64-apple-darwin
+    #         override: true
 
-      - name: Build macOS Binary
-        env:
-          SDK_PATH: ${{ env.OSX_SDK_PATH }}
-        run: cargo build --release --target x86_64-apple-darwin
+    #     - name: Build macOS Binary
+    #       env:
+    #         SDK_PATH: ${{ env.OSX_SDK_PATH }}
+    #       run: cargo build --release --target x86_64-apple-darwin
 
-      - name: Upload macOS Binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: sshm-macos
-          path: target/x86_64-apple-darwin/release/*
-          retention-days: 3 
+    #     - name: Upload macOS Binary
+    #       uses: actions/upload-artifact@v4
+    #       with:
+    #         name: sshm-macos
+    #         path: target/x86_64-apple-darwin/release/*
+    #         retention-days: 3
 
-  # === 发布 Job ===
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: [build-linux, build-macos]  # 等待 Linux 和 macOS 构建完成
+    # === 发布 Job ===
+    release:
+        name: Create Release
+        runs-on: ubuntu-latest
+        needs: [build-linux] # 等待 Linux 和 macOS 构建完成
 
-    steps:
-      - name: Download Linux Binary
-        uses: actions/download-artifact@v3
-        with:
-          name: sshm-linux
-          path: binaries/
+        steps:
+            - name: Download Linux Binary
+              uses: actions/download-artifact@v3
+              with:
+                  name: sshm-linux
+                  path: binaries/
 
-      - name: Download macOS Binary
-        uses: actions/download-artifact@v3
-        with:
-          name: sshm-macos
-          path: binaries/
+            # - name: Download macOS Binary
+            #   uses: actions/download-artifact@v3
+            #   with:
+            #     name: sshm-macos
+            #     path: binaries/
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: binaries/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: binaries/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
