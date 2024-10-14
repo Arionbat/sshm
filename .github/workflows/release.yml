@@ -24,16 +24,15 @@ jobs:
             - name: Build Linux Binary
               run: cargo build --release --target x86_64-unknown-linux-gnu
 
+            - name: Rename Binary for Linux
+              run: mv target/x86_64-unknown-linux-gnu/release/sshm binaries/sshm-linux
+
             - name: Upload Linux Binary
               uses: actions/upload-artifact@v4
               with:
                   name: sshm-linux
-                  path: target/x86_64-unknown-linux-gnu/release/sshm
+                  path: binaries/sshm-linux
                   retention-days: 3
-
-            - name: List Upload Files
-              # 列出 binaries 目录中的所有文件
-              run: ls
 
     # # === macOS 构建 Job ===
     # build-macos:
@@ -81,9 +80,6 @@ jobs:
         needs: [build-linux] # 等待 Linux 和 macOS 构建完成
 
         steps:
-            - name: List Downloaded Files
-              # 列出 binaries 目录中的所有文件
-              run: ls
             - name: Download Linux Binary
               uses: actions/download-artifact@v4
               with:
