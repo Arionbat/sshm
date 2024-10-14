@@ -82,12 +82,14 @@ jobs:
         needs: [build-linux] # 等待 Linux 和 macOS 构建完成
 
         steps:
+            - name: List Downloaded Files
+              # 列出 binaries 目录中的所有文件
+              run: ls -R binaries/
             - name: Download Linux Binary
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                   name: sshm-linux
                   path: binaries/
-
             - name: List Downloaded Files
               # 列出 binaries 目录中的所有文件
               run: ls -R binaries/
