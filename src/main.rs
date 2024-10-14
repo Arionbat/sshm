@@ -8,6 +8,9 @@ use std::process::{Command, Stdio};
 use termion::clear;
 use termion::cursor;
 
+/**
+ * TODO 添加加密
+ */
 fn main() {
     let home_dir = home_dir().unwrap().display().to_string();
     let conn = Connection::open_with_flags(
@@ -77,7 +80,9 @@ fn main() {
     }
 }
 
-// 辅助函数，用于读取用户输入
+/**
+ * 辅助函数，用于读取用户输入
+ */
 fn read_input() -> String {
     let mut input = String::new();
     std::io::stdin()
@@ -106,7 +111,6 @@ fn list_servers(conn: &Connection) {
         .expect("遍历数据失败");
 
     let mut table = Table::new();
-    // table.set_header(vec!["服务器编号", "服务器别名", "服务器信息"]);
     table.set_header(vec![
         Cell::new("服务器编号")
             .set_alignment(CellAlignment::Center)
