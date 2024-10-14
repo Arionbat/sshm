@@ -30,6 +30,7 @@ jobs:
         with:
           name: sshm-linux
           path: target/x86_64-unknown-linux-gnu/release/*
+          retention-days: 3 
 
   # === macOS 构建 Job ===
   build-macos:
@@ -68,6 +69,7 @@ jobs:
         with:
           name: sshm-macos
           path: target/x86_64-apple-darwin/release/*
+          retention-days: 3 
 
   # === 发布 Job ===
   release:
